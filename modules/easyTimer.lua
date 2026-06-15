@@ -7,24 +7,16 @@ timer_class = {
 	isPaused = false,
 }
 
-function timer_class:pause()
-	self.isPaused = true
+function timer_class:paused(bool)
+	self.isPaused = bool
 end
 
-function timer_class:resume()
-	self.isPaused = false
-end
-
-function timer_class:toggleTimer()
+function timer_class:alternatePause()
 	self.isPaused = not self.isPaused
 end
 
-function timer_class:wontLoop()
-	self.loops = false
-end
-
-function timer_class:willLoop()
-	self.loops = true
+function timer_class:willLoop(bool)
+	self.loops = bool
 end
 
 function timer_class:toggleLoop()
@@ -39,7 +31,7 @@ function timer_class:update(dt)
 			if self.loops then
 				self.currentTime = self.startAt
 			else
-				self:pause()
+				self:paused(true)
 				self.currentTime = self.finishAt
 			end
 		end

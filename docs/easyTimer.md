@@ -17,14 +17,10 @@ By default, the .new() arguments are the following:
 
 ## Methods
 
-- :pause()
-- :resume()
-- :toggleTimer() [If paused, resumes, and viceversa]
-  
-- :wontLoop()
-- :willLoop()
+- :paused(boolean)
+- :alternatePause() [If paused, resumes, and viceversa]
+- :willLoop(boolean)
 - :toggleLoop()
-  
 - :update(dt) [IMPORTANT! Makes everything work.]
 
 ## Example of usage
@@ -35,15 +31,15 @@ By default, the .new() arguments are the following:
 
 function love.load()
     require("modules.easyTimer")
-    myTimer = timer_class.new(10, 0, 1, false, false)
+    timerName = timer_class.new(10, 0, 1, false, false)
 end
 
 function love.update(dt)
-    myTimer:update(dt)
+    timerName:update(dt)
 end
 
 function love.draw()
-    love.graphics.print(math.ceil(myTimer.currentTime))
+    love.graphics.print(math.ceil(timerName.currentTime))
 end
 
 ```
