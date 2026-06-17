@@ -27,7 +27,7 @@ By default, the .new() arguments are the following:
 
 ```lua
 
---Main.lua
+--Main.lua 
 
 function love.load()
     require("modules.easyTimer")

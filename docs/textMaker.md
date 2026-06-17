@@ -42,7 +42,7 @@ end
 
 function love.keypressed(key)
 	hola:keypressed(key)
-	if hola.isIn == false then
+	if hola.general_isIn == false then
 		if key == "a" then
 			hola:setIn(true)
 		end

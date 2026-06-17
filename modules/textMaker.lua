@@ -1,14 +1,16 @@
+-- Class properties
 textbox_class = {
-	isIn = false,
+	general_isIn = false,
 	X = (256 / 2),
 	Y = (224 / 2),
-	image = love.graphics.newImage("rs/textMaker/tM_textbox.png"),
-	r = 0,
-	g = 1,
-	b = 0,
-	a = 0.5,
+	general_textbox = love.graphics.newImage("rs/textMaker/tM_textbox.png"),
+	typewriter_r = 1,
+	typewriter_g = 1,
+	typewriter_b = 1,
+	typewriter_a = 1,
 	placementOfY = { bottom = 176, top = 48 },
 	isAtBottom = true,
+
 	typewriter_speed = 20,
 	typewriter_lines = {
 		"Whats so green about this...",
@@ -20,20 +22,48 @@ textbox_class = {
 	typewriter_linesIndex = 1,
 	typewriter_shownText = "",
 	typewriter_letterCount = 1,
+
 	indicator_image = love.graphics.newImage("rs/textMaker/tM_indicator.png"),
 	indicator_quads = { love.graphics.newQuad(0, 0, 9, 7, 9, 14), love.graphics.newQuad(0, 7, 9, 7, 9, 14) },
 	indicator_index = 1,
 	indicator_timer = 1,
 	indicator_isShowing = false,
-}
 
+	nameLabel_name = nil,
+	nameLabel_r = 1,
+	nameLabel_g = 1,
+	nameLabel_b = 1,
+	nameLabel_a = 1,
+
+	audio_tickHigh = love.audio.newSource("rs/audio/tick_highPitch.ogg", "static"),
+}
 textbox_class.text_full = textbox_class.typewriter_lines[textbox_class.typewriter_linesIndex]
-textbox_class.oX = math.floor(textbox_class.image:getWidth() / 2)
-textbox_class.oY = math.floor(textbox_class.image:getHeight() / 2)
+textbox_class.oX = math.floor(textbox_class.general_textbox:getWidth() / 2)
+textbox_class.oY = math.floor(textbox_class.general_textbox:getHeight() / 2)
+
+-- Class methods
+function textbox_class:changeColor(r, g, b, a)
+	self.typewriter_r = r
+	self.typewriter_g = g
+	self.typewriter_b = b
+	self.typewriter_a = a
+end
+
+function textbox_class:modifyName(r, g, b, a, newSpeaker)
+	self.nameLabel_r = r
+	self.nameLabel_g = g
+	self.nameLabel_b = b
+	self.nameLabel_a = a
+	self.nameLabel_name = newSpeaker or self.nameLabel_name
+	if newSpeaker == "removeName" then
+		self.nameLabel_name = nil
+	end
+end
 
 function textbox_class:setIn(bool)
 	self.typewriter_linesIndex = 1
-	self.isIn = bool
+	self.general_isIn = bool
+	self:changeColor(1, 1, 1, 1)
 end
 
 function textbox_class:next()
@@ -45,12 +75,16 @@ function textbox_class:next()
 	end
 end
 
+function textbox_class:setAtBottom(bool)
+	self.isAtBottom = bool
+end
+
 function textbox_class:update(dt)
-	if self.isIn then
+	if self.general_isIn then
 		self.text_full = self.typewriter_lines[self.typewriter_linesIndex]
 		-- Textbox placement
 		if self.isAtBottom then
-			self.Y = self.placementOfY.bottom
+			self.Y = self.placementOfY.bottom	
 		else
 			self.Y = self.placementOfY.top
 		end
@@ -61,6 +95,12 @@ function textbox_class:update(dt)
 			self.indicator_index = 1
 			self.indicator_timer = 1
 			self.typewriter_letterCount = self.typewriter_letterCount + (self.typewriter_speed * dt)
+			
+			local letters = math.floor(self.typewriter_letterCount)
+			if letters % 2 == 0 then
+				local source = self.audio_tickHigh:clone()
+				source:play()
+			end
 		else
 			-- Animating the indicator
 			self.indicator_timer = self.indicator_timer + (4 * dt)
@@ -82,23 +122,47 @@ function textbox_class:update(dt)
 end
 
 function textbox_class:keypressed(key)
-	if self.isIn then
-		if key == "rshift" and self.typewriter_letterCount < #self.text_full then
+	if self.general_isIn then
+		if
+			(key == "rshift" and self.typewriter_letterCount < #self.text_full)
+			or (key == "x" and self.typewriter_letterCount < #self.text_full)
+		then
 			self.typewriter_letterCount = #self.text_full
 		end
 
-		if key == "return" and self.typewriter_letterCount >= #self.text_full then
+		if
+			(key == "return" and self.typewriter_letterCount >= #self.text_full)
+			or (key == "z" and self.typewriter_letterCount >= #self.text_full)
+		then
 			self:next()
 		end
 	end
 end
--- self.index
+
 function textbox_class:draw()
-	if self.isIn then
-		love.graphics.draw(self.image, self.X, self.Y, 0, 1, 1, self.oX, self.oY)
-		love.graphics.setColor(self.r, self.g, self.b, self.a)
-		love.graphics.print(self.typewriter_shownText, textbox_class.typewriter_font, ((self.X - self.oX) + 9), ((self.Y - self.oY) + 9))
+	if self.general_isIn then
+		love.graphics.draw(self.general_textbox, self.X, self.Y, 0, 1, 1, self.oX, self.oY)
+
+		love.graphics.setColor(self.typewriter_r, self.typewriter_g, self.typewriter_b, self.typewriter_a)
+
+		if self.nameLabel_name == nil then
+			love.graphics.print(
+				self.typewriter_shownText,
+				textbox_class.typewriter_font,
+				((self.X - self.oX) + 9),
+				((self.Y - self.oY) + 9)
+			)
+		else
+			love.graphics.print(
+				self.typewriter_shownText,
+				textbox_class.typewriter_font,
+				((self.X - self.oX) + 9),
+				((self.Y - self.oY) + 15)
+			)
+		end
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- Indicator
 		if self.indicator_isShowing then
 			love.graphics.draw(
 				self.indicator_image,
@@ -107,22 +171,46 @@ function textbox_class:draw()
 				self.Y + math.floor(20)
 			)
 		end
+
+		-- Name
+		if self.nameLabel_name ~= nil then
+			love.graphics.setColor(self.nameLabel_r, self.nameLabel_g, self.nameLabel_b, self.nameLabel_a)
+
+			if self.isAtBottom then
+				love.graphics.print(
+					self.nameLabel_name .. ":",
+					textbox_class.typewriter_font,
+					(self.X - self.oX) + 9,
+					(self.Y - self.oY) + 6
+				)
+			else
+				love.graphics.print(
+					self.nameLabel_name .. ":",
+					textbox_class.typewriter_font,
+					(self.X - self.oX) + 9,
+					(self.Y - self.oY) + 6
+				)
+			end
+			love.graphics.setColor(1, 1, 1, 1)
+		end
 	end
 end
+
+--Constructor
 
 local metaBox = {}
 metaBox.__index = textbox_class
 
-function textbox_class.new(bottom, typewriter_speed, typewriter_lines, r, g, b, a)
+function textbox_class.new(bottom, typewriter_speed, typewriter_lines, r, g, b, a, speaker)
 	local textInstance = setmetatable({}, metaBox)
 
 	textInstance.isAtBottom = bottom == true
 	textInstance.typewriter_speed = typewriter_speed or 2
 	textInstance.typewriter_lines = typewriter_lines or textbox_class.typewriter_lines
-	textInstance.r = r or 1
-	textInstance.g = g or 1
-	textInstance.b = b or 1
-	textInstance.a = a or 1
-
+	textInstance.typewriter_r = r or 1
+	textInstance.typewriter_g = g or 1
+	textInstance.typewriter_b = b or 1
+	textInstance.typewriter_a = a or 1
+	textInstance.nameLabel_name = speaker or nil
 	return textInstance
 end
