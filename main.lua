@@ -1,6 +1,6 @@
 function love.load()
 	require("modules.textMaker")
-	hola = textbox_class.new(true, 20, { "Doesn't this feel...", "...", "Sussy" },1, 1, 1, 1, "Ninten")
+	hola = textbox_class.new(true, 20, { "Doesn't this feel...", "...", "Sussy", "Bluddd"},1, 1, 1, 1, "Ninten")
 end
 
 function love.update(dt)
@@ -23,13 +23,14 @@ function love.keypressed(key)
 
 	if key == "2" then
 		hola:setAtBottom(false)
+		hola:setPitch("Low")
 	end
 
 	if key == "3" then
-		hola:modifyName(0, 1, 0, 1)
+		hola:modifyName(0, 1, 0, 1, "Ness")
 	end
 	if key == "4" then
-		hola:modifyName(1, 1, 0, 1, "setNameBlank")
+		hola:modifyName(1, 1, 0, 1, "removeName")
 	end
 end
 

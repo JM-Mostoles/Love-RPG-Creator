@@ -1,16 +1,20 @@
 -- Class properties
 textbox_class = {
+	-- Textbox generals, image and position.
 	general_isIn = false,
-	X = (256 / 2),
-	Y = (224 / 2),
+	general_X = (256 / 2),
+	general_Y = (224 / 2),
+	general_yPos = { bottom = 176, top = 48 },
+	general_isAtBottom = true,
 	general_textbox = love.graphics.newImage("rs/textMaker/tM_textbox.png"),
+
+	-- Textbox's text elements
+	-- Color
 	typewriter_r = 1,
 	typewriter_g = 1,
 	typewriter_b = 1,
 	typewriter_a = 1,
-	placementOfY = { bottom = 176, top = 48 },
-	isAtBottom = true,
-
+	-- Other elements
 	typewriter_speed = 20,
 	typewriter_lines = {
 		"Whats so green about this...",
@@ -22,24 +26,32 @@ textbox_class = {
 	typewriter_linesIndex = 1,
 	typewriter_shownText = "",
 	typewriter_letterCount = 1,
+	typewriter_speed = 20,
 
+	-- Indicator
 	indicator_image = love.graphics.newImage("rs/textMaker/tM_indicator.png"),
 	indicator_quads = { love.graphics.newQuad(0, 0, 9, 7, 9, 14), love.graphics.newQuad(0, 7, 9, 7, 9, 14) },
 	indicator_index = 1,
 	indicator_timer = 1,
 	indicator_isShowing = false,
 
+	-- Name
 	nameLabel_name = nil,
 	nameLabel_r = 1,
 	nameLabel_g = 1,
 	nameLabel_b = 1,
 	nameLabel_a = 1,
 
-	audio_tickHigh = love.audio.newSource("rs/audio/tick_highPitch.ogg", "static"),
+	-- Audio
+	audio_tickHighPitch = love.audio.newSource("rs/audio/tick_highPitch.ogg", "static"),
+	audio_tickLowPitch = love.audio.newSource("rs/audio/tick_lowPitch.ogg", "static"),
 }
+
+-- Other class atributes
 textbox_class.text_full = textbox_class.typewriter_lines[textbox_class.typewriter_linesIndex]
 textbox_class.oX = math.floor(textbox_class.general_textbox:getWidth() / 2)
 textbox_class.oY = math.floor(textbox_class.general_textbox:getHeight() / 2)
+textbox_class.currentPitch = textbox_class.audio_tickHighPitch
 
 -- Class methods
 function textbox_class:changeColor(r, g, b, a)
@@ -62,6 +74,7 @@ end
 
 function textbox_class:setIn(bool)
 	self.typewriter_linesIndex = 1
+	self.typewriter_letterCount = 1
 	self.general_isIn = bool
 	self:changeColor(1, 1, 1, 1)
 end
@@ -76,17 +89,28 @@ function textbox_class:next()
 end
 
 function textbox_class:setAtBottom(bool)
-	self.isAtBottom = bool
+	self.general_isAtBottom = bool
+end
+
+function textbox_class:setPitch(pitch)
+	if pitch == "High" then
+		textbox_class.currentPitch = textbox_class.audio_tickHighPitch
+	elseif pitch == "Low" then
+		textbox_class.currentPitch = textbox_class.audio_tickLowPitch
+	end
 end
 
 function textbox_class:update(dt)
+
 	if self.general_isIn then
+
 		self.text_full = self.typewriter_lines[self.typewriter_linesIndex]
+
 		-- Textbox placement
-		if self.isAtBottom then
-			self.Y = self.placementOfY.bottom	
+		if self.general_isAtBottom then
+			self.general_Y = self.general_yPos.bottom
 		else
-			self.Y = self.placementOfY.top
+			self.general_Y = self.general_yPos.top
 		end
 
 		-- Text
@@ -95,10 +119,10 @@ function textbox_class:update(dt)
 			self.indicator_index = 1
 			self.indicator_timer = 1
 			self.typewriter_letterCount = self.typewriter_letterCount + (self.typewriter_speed * dt)
-			
+			-- Sound
 			local letters = math.floor(self.typewriter_letterCount)
 			if letters % 2 == 0 then
-				local source = self.audio_tickHigh:clone()
+				local source = self.currentPitch:clone()
 				source:play()
 			end
 		else
@@ -117,19 +141,24 @@ function textbox_class:update(dt)
 			self.indicator_isShowing = true
 		end
 
+		-- Displaying text
 		self.typewriter_shownText = string.sub(self.text_full, 1, self.typewriter_letterCount)
 	end
 end
 
 function textbox_class:keypressed(key)
+
 	if self.general_isIn then
+
+		-- Skip text
 		if
 			(key == "rshift" and self.typewriter_letterCount < #self.text_full)
 			or (key == "x" and self.typewriter_letterCount < #self.text_full)
 		then
 			self.typewriter_letterCount = #self.text_full
 		end
-
+		
+		-- Continue text
 		if
 			(key == "return" and self.typewriter_letterCount >= #self.text_full)
 			or (key == "z" and self.typewriter_letterCount >= #self.text_full)
@@ -141,23 +170,25 @@ end
 
 function textbox_class:draw()
 	if self.general_isIn then
-		love.graphics.draw(self.general_textbox, self.X, self.Y, 0, 1, 1, self.oX, self.oY)
+		-- Textbox
+		love.graphics.draw(self.general_textbox, self.general_X, self.general_Y, 0, 1, 1, self.oX, self.oY)
 
+		-- Text
 		love.graphics.setColor(self.typewriter_r, self.typewriter_g, self.typewriter_b, self.typewriter_a)
-
+ 
 		if self.nameLabel_name == nil then
 			love.graphics.print(
 				self.typewriter_shownText,
 				textbox_class.typewriter_font,
-				((self.X - self.oX) + 9),
-				((self.Y - self.oY) + 9)
+				((self.general_X - self.oX) + 9),
+				((self.general_Y - self.oY) + 9)
 			)
 		else
 			love.graphics.print(
 				self.typewriter_shownText,
 				textbox_class.typewriter_font,
-				((self.X - self.oX) + 9),
-				((self.Y - self.oY) + 15)
+				((self.general_X - self.oX) + 9),
+				((self.general_Y - self.oY) + 15)
 			)
 		end
 		love.graphics.setColor(1, 1, 1, 1)
@@ -167,8 +198,8 @@ function textbox_class:draw()
 			love.graphics.draw(
 				self.indicator_image,
 				self.indicator_quads[self.indicator_index],
-				self.X + math.floor(95),
-				self.Y + math.floor(20)
+				self.general_X + math.floor(95),
+				self.general_Y + math.floor(20)
 			)
 		end
 
@@ -176,19 +207,19 @@ function textbox_class:draw()
 		if self.nameLabel_name ~= nil then
 			love.graphics.setColor(self.nameLabel_r, self.nameLabel_g, self.nameLabel_b, self.nameLabel_a)
 
-			if self.isAtBottom then
+			if self.general_isAtBottom then
 				love.graphics.print(
 					self.nameLabel_name .. ":",
 					textbox_class.typewriter_font,
-					(self.X - self.oX) + 9,
-					(self.Y - self.oY) + 6
+					(self.general_X - self.oX) + 9,
+					(self.general_Y - self.oY) + 6
 				)
 			else
 				love.graphics.print(
 					self.nameLabel_name .. ":",
 					textbox_class.typewriter_font,
-					(self.X - self.oX) + 9,
-					(self.Y - self.oY) + 6
+					(self.general_X - self.oX) + 9,
+					(self.general_Y - self.oY) + 6
 				)
 			end
 			love.graphics.setColor(1, 1, 1, 1)
@@ -204,7 +235,7 @@ metaBox.__index = textbox_class
 function textbox_class.new(bottom, typewriter_speed, typewriter_lines, r, g, b, a, speaker)
 	local textInstance = setmetatable({}, metaBox)
 
-	textInstance.isAtBottom = bottom == true
+	textInstance.general_isAtBottom = bottom == true
 	textInstance.typewriter_speed = typewriter_speed or 2
 	textInstance.typewriter_lines = typewriter_lines or textbox_class.typewriter_lines
 	textInstance.typewriter_r = r or 1
