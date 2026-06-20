@@ -26,7 +26,7 @@ By default, the .new() arguments are the following:
 ## Methods
 
 - :paused(boolean)
-- :alternatePause()
+- :alternatePause()  
   [If paused, resumes, and viceversa]
 - :willLoop(boolean)
 - :toggleLoop()
