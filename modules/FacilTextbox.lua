@@ -1,5 +1,5 @@
 -- Class properties
-FacilTextbox_class = {
+local FacilTextbox_class = {
 	-- Textbox generals, image and position.
 	general_isIn = false,
 	general_X = (256 / 2),
@@ -76,6 +76,7 @@ function FacilTextbox_class:setIn(bool)
 	self.typewriter_letterCount = 1
 	self.general_isIn = bool
 	self:changeColor(1, 1, 1, 1)
+	self:modifyName(1, 1, 1, 1, "removeName")
 end
 
 function FacilTextbox_class:next()
@@ -244,3 +245,5 @@ function FacilTextbox_class.new(bottom, typewriter_speed, typewriter_lines, r, g
 	textInstance.nameLabel_name = speaker or nil
 	return textInstance
 end
+
+return FacilTextbox_class
