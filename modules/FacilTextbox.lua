@@ -76,7 +76,9 @@ function FacilTextbox_class:setIn(bool)
 	self.typewriter_letterCount = 1
 	self.general_isIn = bool
 	self:changeColor(1, 1, 1, 1)
-	self:modifyName(1, 1, 1, 1, "removeName")
+	if bool == false then
+		self:modifyName(1, 1, 1, 1, "removeName")
+	end
 end
 
 function FacilTextbox_class:next()
@@ -237,7 +239,7 @@ function FacilTextbox_class.new(bottom, typewriter_speed, typewriter_lines, r, g
 
 	textInstance.general_isAtBottom = bottom == true
 	textInstance.typewriter_speed = typewriter_speed or 2
-	textInstance.typewriter_lines = typewriter_lines or FacilTextbox_class.typewriter_lines
+	textInstance.typewriter_lines = typewriter_lines or {"Looks to me that this\nis a FacilTextbox", "How cool!\n Let me try."}
 	textInstance.typewriter_r = r or 1
 	textInstance.typewriter_g = g or 1
 	textInstance.typewriter_b = b or 1
